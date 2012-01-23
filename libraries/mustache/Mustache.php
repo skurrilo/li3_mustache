@@ -1,5 +1,9 @@
 <?php
 
+namespace li3_mustache\libraries;
+
+use Exception;
+
 /**
  * A Mustache implementation in PHP.
  *
