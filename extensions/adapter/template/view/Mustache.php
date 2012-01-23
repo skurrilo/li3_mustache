@@ -2,7 +2,7 @@
 
 namespace li3_mustache\extensions\adapter\template\view;
 
-use Mustache as Renderer;
+use li3_mustache\libraries\Mustache as Renderer;
 use lithium\core\Libraries;
 
 class Mustache extends \lithium\template\view\adapter\File {
