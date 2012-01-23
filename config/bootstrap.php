@@ -2,7 +2,7 @@
 
 use lithium\net\http\Media;
 
-require dirname(__DIR__) . '/libraries/mustache.php/Mustache.php';
+require dirname(__DIR__) . '/libraries/mustache/Mustache.php';
 
 Media::type('mustache', 'text/x-mustache', array(
 	'view' => 'lithium\template\View',
