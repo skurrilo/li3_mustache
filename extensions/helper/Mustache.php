@@ -8,6 +8,9 @@ class Mustache extends \lithium\template\Helper {
 
 	public function render($name, $data = array(), $options = array()) {
 		$template = $this->template($name);
+
+		$data = $this->_extract($data);
+
 		return new Must($template, $data);
 	}
 
@@ -15,6 +18,17 @@ class Mustache extends \lithium\template\Helper {
 
 		$process = array('element' => "mustache/{$name}");
 		return $this->_context->view()->render($process, $params);
+	}
+
+	public function _extract($data) {
+
+		$keys = array_keys($data);
+		foreach($keys as $key) {
+			if(is_callable(array($data[$key], 'data'))) {
+				$data[$key] = $data[$key]->data();
+			}
+		}
+		return $data;
 	}
 
 }
