@@ -21,13 +21,11 @@ class Mustache extends \lithium\template\Helper {
 	}
 
 	public function _extract($data) {
-
-		$keys = array_keys($data);
-		foreach($keys as $key) {
-			if(is_callable(array($data[$key], 'data'))) {
-				$data[$key] = $data[$key]->data();
+		array_walk_recursive($data, function(&$item, &$key){
+			if(is_callable(array($item, 'data')) && is_object($item)) {
+				$item = $item->data();
 			}
-		}
+		});
 		return $data;
 	}
 
