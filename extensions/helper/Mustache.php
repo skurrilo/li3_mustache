@@ -8,9 +8,7 @@ class Mustache extends \lithium\template\Helper {
 
 	public function render($name, $data = array(), $options = array()) {
 		$template = $this->template($name);
-
 		$data = $this->_extract($data);
-
 		return new Must($template, $data);
 	}
 
