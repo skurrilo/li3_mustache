@@ -16,8 +16,9 @@ class Mustache extends \lithium\template\Helper {
 	 */
 	public function render($name, $data = array(), $options = array()) {
 		$template = $this->template($name);
+		$partials = $this->partials($template);
 		$data = $this->_extract($data);
-		return new Must($template, $data);
+		return new Must($template, $data, $partials);
 	}
 
 	/**
@@ -28,8 +29,29 @@ class Mustache extends \lithium\template\Helper {
 	 * @return string the rendered element with (hopefully) the mustache template in it
 	 */
 	public function template($name, $params = array()) {
-		$process = array('element' => "mustache/{$name}");
-		return $this->_context->view()->render($process, $params);
+		$element = array('element' => "mustache/{$name}");
+		return $this->_context->view()->render($element, $params);
+	}
+
+	/**
+	 * generates a valid Mustache partials array for given $template
+	 *
+	 * @param string $template mustache template with partials in it
+	 * @return array an associative array containing all partials
+	 */
+	public function partials($template) {
+		$result = array();
+		$regex = sprintf(
+			'/(?:(?<=\\n)[ \\t]*)?%s(?:(?P<type>[%s])(?P<tag_name>.+?)|=(?P<delims>.*?)=)%s\\n?/s',
+			preg_quote('{{', '/'), '\>', preg_quote('}}', '/')
+		);
+		preg_match_all($regex, $template, $matches);
+		if (!empty($matches['tag_name'])) {
+			foreach($matches['tag_name'] as $name) {
+				$result[$name] = $this->template($name);
+			}
+		}
+		return $result;
 	}
 
 	/**
