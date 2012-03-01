@@ -3,7 +3,7 @@
 Lithium library for parsing mustache views, uses [PHP Mustache](https://github.com/bobthecow/mustache.php).
 
 Mustache Spec version: `1.1.2`
-PHP Mustache version: `0.8.1`
+PHP Mustache version: `1.0.0`
 
 ## Installation
 
