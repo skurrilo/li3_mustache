@@ -4,6 +4,9 @@ namespace li3_mustache\extensions\helper;
 
 use li3_mustache\libraries\Mustache as Must;
 
+use lithium\util\Inflector;
+use lithium\util\String;
+
 class Mustache extends \lithium\template\Helper {
 
 	/**
@@ -52,6 +55,27 @@ class Mustache extends \lithium\template\Helper {
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * generates a script-tag with a mustache template in it
+	 *
+	 * The script tag has the given template as content and has a
+	 * attribute type="text/html" which is proposed as a template
+	 * to be used clientside with javascript.
+	 *
+	 * @param string $name Name of template to include
+	 * @param string $options additional options, currently none
+	 * @return string the script-tag with correct attributes and template
+	 */
+	public function script($name, $options = array()) {
+		$defaults = array(
+			'name' => 'tpl_'.Inflector::slug($name, '_'),
+		);
+		$options += $defaults;
+		$options += array('template' => $this->template($name));
+		$scriptblock = '<script id="{:name}" type="text/html" charset="utf-8">{:template}</script>';
+		return String::insert($scriptblock, $options);
 	}
 
 	/**
