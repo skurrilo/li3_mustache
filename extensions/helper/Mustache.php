@@ -58,6 +58,23 @@ class Mustache extends \lithium\template\Helper {
 	}
 
 	/**
+	 * Parses an associative array into an array, containing one
+	 * array for each row, that has 'key' and 'value' filled
+	 * as expected. That makes rendering of arbitrary meta-data
+	 * much simpler, e.g. if you do not know, what data you are
+	 * about to retrieve.
+	 *
+	 * @param array $data an associative array containing mixed data
+	 * @return array an numerical indexed array with arrays for each
+	 *         item in $data, having 'key' and 'value' set accordingly
+	 */
+	public function data(array $data = array()) {
+		return array_map(function($key, $value) {
+			return compact('key', 'value');
+		}, array_keys($data), $data);
+	}
+
+	/**
 	 * generates a script-tag with a mustache template in it
 	 *
 	 * The script tag has the given template as content and has a
