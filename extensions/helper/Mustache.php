@@ -10,6 +10,20 @@ use lithium\util\String;
 class Mustache extends \lithium\template\Helper {
 
 	/**
+	 * all names of collection classes,
+	 * that we have to cut off the primary keys
+	 * via array_values to allow for mustache
+	 * looping instead of nesting.
+	 *
+	 * @var array
+	 */
+	public $_collection_classes = array(
+		'RecordSet',
+		'DocumentSet',
+		'DocumentCollection'
+	);
+
+	/**
 	 * Renders one mustache element with given $data
 	 *
 	 * @param string $name name of the element, below elements/mustache
@@ -50,7 +64,7 @@ class Mustache extends \lithium\template\Helper {
 		);
 		preg_match_all($regex, $template, $matches);
 		if (!empty($matches['tag_name'])) {
-			foreach($matches['tag_name'] as $name) {
+			foreach ($matches['tag_name'] as $name) {
 				$result[$name] = $this->template($name);
 			}
 		}
@@ -86,9 +100,7 @@ class Mustache extends \lithium\template\Helper {
 	 * @return string the script-tag with correct attributes and template
 	 */
 	public function script($name, $options = array()) {
-		$defaults = array(
-			'name' => 'tpl_'.Inflector::slug($name, '_'),
-		);
+		$defaults = array('name' => 'tpl_' . Inflector::slug($name, '_'));
 		$options += $defaults;
 		$options += array('template' => $this->template($name));
 		$scriptblock = '<script id="{:name}" type="text/html" charset="utf-8">{:template}</script>';
@@ -102,11 +114,12 @@ class Mustache extends \lithium\template\Helper {
 	 * @return array resulting data with only array format
 	 */
 	public function _extract($data) {
-		array_walk_recursive($data, function(&$item, &$key){
+		$collection_classes = $this->_collection_classes;
+		array_walk_recursive($data, function(&$item, &$key) use (&$collection_classes) {
 
 			// we need to convert our data, that is probably an object
 			// to an array, or our mustache complains.
-			if(is_object($item)) {
+			if (is_object($item)) {
 
 				// get type of class (we do not care for namespaces...)
 				$class_type = basename(str_replace('\\', '/', get_class($item)));
@@ -115,19 +128,20 @@ class Mustache extends \lithium\template\Helper {
 				// because we need to get only the values, the $keys are $ids
 				// which makes mustache think, this is an named object, instead
 				// of an array
-				if (in_array($class_type, array('RecordSet', 'DocumentSet', 'DocumentCollection'))) {
+				if (in_array($class_type, $collection_classes)) {
 					$item = array_values($item->data());
 
 				// whatever it is, if it has a data() method on it, we should call that.
 				// that way, we can even throw models or whatever you think in it.
 				// If you handover a custom tailored object, make sure you implement this
 				// so it works out of the box
-				} elseif(is_callable(array($item, 'data'))) {
+				} elseif (is_callable(array($item, 'data'))) {
 					$item = $item->data();
 				}
 			}
 		});
 		return $data;
 	}
-
 }
+
+?>

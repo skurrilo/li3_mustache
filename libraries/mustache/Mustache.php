@@ -248,7 +248,7 @@ class Mustache {
 
 			$rendered_content = '';
 			$val = $this->_getVariable($tag_name);
-			switch($type) {
+			switch ($type) {
 				// inverted section
 				case '^':
 					if (empty($val)) {
