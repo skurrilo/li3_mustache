@@ -6,6 +6,7 @@ use li3_mustache\libraries\Mustache as Must;
 
 use lithium\util\Inflector;
 use lithium\util\String;
+use lithium\util\Set;
 
 class Mustache extends \lithium\template\Helper {
 
@@ -82,7 +83,12 @@ class Mustache extends \lithium\template\Helper {
 	 * @return array an numerical indexed array with arrays for each
 	 *         item in $data, having 'key' and 'value' set accordingly
 	 */
-	public function data(array $data = array()) {
+	public function data(array $data = array(), array $options = array()) {
+		$defaults = array('flatten' => true);
+		$options += $defaults;
+		if ($options['flatten']) {
+			$data = Set::flatten($data);
+		}
 		return array_map(function($key, $value) {
 			return compact('key', 'value');
 		}, array_keys($data), $data);
