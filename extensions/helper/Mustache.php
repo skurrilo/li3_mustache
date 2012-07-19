@@ -11,6 +11,14 @@ use lithium\util\Set;
 class Mustache extends \lithium\template\Helper {
 
 	/**
+	 * View Object to be re-used across mails
+	 *
+	 * @see li3_mailer\core\Mailer::render()
+	 * @var object Instance of View object
+	 */
+	protected $_view;
+
+	/**
 	 * all names of collection classes,
 	 * that we have to cut off the primary keys
 	 * via array_values to allow for mustache
@@ -25,9 +33,18 @@ class Mustache extends \lithium\template\Helper {
 	);
 
 	/**
+	 * Dynamic class dependencies.
+	 *
+	 * @var array Associative array of class names & their namespaces.
+	 */
+	protected $_classes = array(
+		'view' => 'lithium\template\View',
+	);
+
+	/**
 	 * Renders one mustache element with given $data
 	 *
-	 * @param string $name name of the element, below elements/mustache
+	 * @param string $name name of the element, below views/mustache
 	 * @param string $data an array or object what to hand to the mustache layer
 	 * @param string $options additional options, currently none
 	 * @return string the rendered mustache template
@@ -42,13 +59,12 @@ class Mustache extends \lithium\template\Helper {
 	/**
 	 * Find the correct (mustache) element and return its content
 	 *
-	 * @param string $name Name of element to look for below elements/mustache
+	 * @param string $name Name of element to look for below views/mustache
 	 * @param string $params additional params to put into the view()->render()
 	 * @return string the rendered element with (hopefully) the mustache template in it
 	 */
 	public function template($name, $params = array()) {
-		$element = array('element' => "mustache/{$name}");
-		return $this->_context->view()->render($element, $params);
+		return $this->_view()->render(array('element' => $name), $params);
 	}
 
 	/**
@@ -111,6 +127,29 @@ class Mustache extends \lithium\template\Helper {
 		$options += array('template' => $this->template($name));
 		$scriptblock = '<script id="{:name}" type="text/html" charset="utf-8">{:template}</script>';
 		return String::insert($scriptblock, $options);
+	}
+
+	/**
+	 * instantiates and returns custom View class
+	 *
+	 * mustache templates are at views/mustache, this custom view
+	 * takes care of that.
+	 *
+	 * @param array $config for custom View config
+	 * @return object instance of newly created View Instance
+	 */
+	public function _view(array $config = array()) {
+		if ($this->_view) {
+			return $this->_view;
+		}
+		$defaults = array(
+			'paths' => array(
+				'element' => '{:library}/views/mustache/{:template}.{:type}.php',
+			),
+		);
+		$config += $defaults;
+		$View = $this->_classes['view'];
+		return $this->_view = new $View($config);
 	}
 
 	/**
