@@ -64,7 +64,7 @@ class Mustache extends \lithium\template\Helper {
 	 * @return string the rendered element with (hopefully) the mustache template in it
 	 */
 	public function template($name, $params = array()) {
-		return $this->_view()->render(array('element' => $name), $params);
+		return $this->_view()->render(array('mustache' => $name), $params);
 	}
 
 	/**
@@ -144,12 +144,14 @@ class Mustache extends \lithium\template\Helper {
 		}
 		$defaults = array(
 			'paths' => array(
-				'element' => '{:library}/views/mustache/{:template}.{:type}.php',
+				'mustache' => '{:library}/views/mustache/{:template}.{:type}.php',
 			),
 		);
-		$config += $defaults;
-		$View = $this->_classes['view'];
-		return $this->_view = new $View($config);
+		$defaults += $config;
+		$this->_view = $this->_context->view();
+		$config = Set::merge($defaults, $this->_view->_config);
+		$this->_view->__construct($config);
+		return $this->_view;
 	}
 
 	/**
