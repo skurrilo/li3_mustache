@@ -144,12 +144,15 @@ class Mustache extends \lithium\template\Helper {
 		}
 		$defaults = array(
 			'paths' => array(
-				'mustache' => '{:library}/views/mustache/{:template}.{:type}.php',
+				'mustache' => array(
+					LITHIUM_APP_PATH . '/views/mustache/{:template}.{:type}.php',
+					'{:library}/views/mustache/{:template}.{:type}.php',
+				)
 			),
 		);
-		$defaults += $config;
+		$config += $defaults;
 		$this->_view = $this->_context->view();
-		$config = Set::merge($defaults, $this->_view->_config);
+		$config = Set::merge($config, $this->_view->_config);
 		$this->_view->__construct($config);
 		return $this->_view;
 	}
