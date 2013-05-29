@@ -44,16 +44,19 @@ Instead of using only mustache for the view in general, i prefer to use mustache
 
 The following points is my roadmap. If you need any of this features sooner than later, please let me know.
 
-- Provide useful helper (done)
-- allow for easy using of an element as mustache template (done)
-- mustache template folder to be at views/mustache (done)
-- allow for mustache templates to live within libraries (done)
-- provide additional scope that carries li3-relevant information (i.e. request, session, etc)
+  - [✓] Provide useful helper
+  - [✓] allow for easy using of an element as mustache template
+  - [✓] mustache template folder to be at views/mustache
+  - [✓] allow for mustache templates to live within libraries
+  - [✓] allow subtemplates to be rendered, no registration required
+  - [ ] provide additional scope that carries li3-relevant information (i.e. request, session, etc)
+  - [ ] allow callbacks to model methods on collection data
 
 ## Credits
 
-* [li3](http://www.lithify.me)
+* [lithium](http://www.lithify.me)
 * [Nate Abele](https://github.com/nateabele/li3_mustache)
+* [bobthecow](https://github.com/bobthecow/mustache.php)
 
 Please report any bug, here: https://github.com/bruensicke/li3_mustache/issues
 
