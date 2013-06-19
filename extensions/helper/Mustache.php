@@ -11,18 +11,30 @@ use lithium\util\Set;
 class Mustache extends \lithium\template\Helper {
 
 	/**
-	 * Renders one mustache element with given $data
+	 * Renders one mustache template with given $data
+	 *
+	 * @param string $template content of the template to be rendered
+	 * @param string $data an array or object what to hand to the mustache layer
+	 * @param string $options additional options, to put into the view()->render()
+	 * @return string the rendered mustache template
+	 */
+	public function render($template, $data = array(), $options = array()) {
+		$partials = $this->partials($template);
+		$data += $this->_context->data();
+		return new MustacheEngine($template, $this->_extract($data), $partials);
+	}
+
+	/**
+	 * Renders one mustache template called `$name`
 	 *
 	 * @param string $name name of the element, below views/mustache
 	 * @param string $data an array or object what to hand to the mustache layer
 	 * @param string $options additional options, to put into the view()->render()
 	 * @return string the rendered mustache template
 	 */
-	public function render($name, $data = array(), $options = array()) {
-		$template = $this->template($name, $data, $options);
-		$partials = $this->partials($template);
-		$data = $this->_extract($data);
-		return new MustacheEngine($template, $data, $partials);
+	public function template($name, $data = array(), $options = array()) {
+		$template = $this->element($name, $data, $options);
+		return $this->render($template, $data);
 	}
 
 	/**
@@ -33,7 +45,7 @@ class Mustache extends \lithium\template\Helper {
 	 * @param string $params additional params to put into the view()->render()
 	 * @return string the rendered element with (hopefully) the mustache template in it
 	 */
-	public function template($name, $data = array(), $params = array()) {
+	public function element($name, $data = array(), $params = array()) {
 		$data += $this->_context->data();
 		return $this->_view()->render(array('element' => '../mustache/' . $name), $data, $params);
 	}
@@ -55,7 +67,7 @@ class Mustache extends \lithium\template\Helper {
 		preg_match_all($regex, $template, $matches);
 		if (!empty($matches['tag_name'])) {
 			foreach ($matches['tag_name'] as $name) {
-				$result[$name] = $this->template($name, $data, $options);
+				$result[$name] = $this->element($name, $data, $options);
 			}
 		}
 		return $result;
@@ -97,7 +109,7 @@ class Mustache extends \lithium\template\Helper {
 	public function script($name, $options = array()) {
 		$defaults = array('name' => 'tpl_' . Inflector::slug($name, '_'));
 		$options += $defaults;
-		$options += array('template' => $this->template($name, array(), $options));
+		$options += array('template' => $this->element($name, array(), $options));
 		$scriptblock = '<script id="{:name}" type="text/html" charset="utf-8">{:template}</script>';
 		return String::insert($scriptblock, $options);
 	}
