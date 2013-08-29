@@ -76,7 +76,7 @@ class Mustache extends \lithium\template\Helper {
 		$defaults = array('flatten' => true);
 		$options += $defaults;
 		if ($options['flatten']) {
-			$data = Set::flatten($data);
+			$data = Set::flatten($this->_extract($data));
 		}
 		return array_map(function($key, $value) {
 			return compact('key', 'value');
