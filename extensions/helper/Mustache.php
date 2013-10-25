@@ -3,62 +3,54 @@
 namespace li3_mustache\extensions\helper;
 
 use li3_mustache\libraries\Mustache as MustacheEngine;
+use Handlebars_Engine;
 
+use lithium\core\Libraries;
 use lithium\util\Inflector;
 use lithium\util\String;
 use lithium\util\Set;
 
-class Mustache extends \lithium\template\Helper {
+class Mustache extends \lithium\template\view\adapter\File {
+
+	/**
+	 * `Mustache_Engine` object instance used by this adapter.
+	 *
+	 * @var object
+	 */
+	protected $_config = array();
+
+	/**
+	 * `Mustache_Engine` object instance used by this adapter.
+	 *
+	 * @var object
+	 */
+	private $_engine = null;
+
+	public function _init() {
+		parent::_init(array('compile' => false));
+		$this->_engine = new Handlebars_Engine($this->_config);
+	}
 
 	/**
 	 * Renders one mustache element with given $data
 	 *
-	 * @param string $name name of the element, below views/mustache
+	 * @param string $template name of the element, below views/mustache
 	 * @param string $data an array or object what to hand to the mustache layer
 	 * @param string $options additional options, to put into the view()->render()
 	 * @return string the rendered mustache template
 	 */
-	public function render($name, $data = array(), $options = array()) {
-		$template = $this->template($name, $data, $options);
-		$partials = $this->partials($template);
-		$data = $this->_extract($data);
-		return new MustacheEngine($template, $data, $partials);
+	public function render($template, $data = array(), array $options = array()) {
+		$defaults = array('context' => array());
+		$options += $defaults;
+
+		$this->_data = (array) $data + $this->_vars;
+		return $this->_engine->render($this->template($template), $this->_data);
 	}
 
-	/**
-	 * Find the correct (mustache) element and return its content
-	 *
-	 * @param string $name Name of element to look for below views/mustache
-	 * @param string $data data to be put into the mustache template
-	 * @param string $params additional params to put into the view()->render()
-	 * @return string the rendered element with (hopefully) the mustache template in it
-	 */
-	public function template($name, $data = array(), $params = array()) {
-		$data += $this->_context->data();
-		return $this->_view()->render(array('element' => '../mustache/' . $name), $data, $params);
-	}
-
-	/**
-	 * generates a valid Mustache partials array for given $template
-	 *
-	 * @param string $template mustache template with partials in it
-	 * @param array $data an array or object to hand to the mustache layer
-	 * @param array $options additional options, to put into the view()->render()
-	 * @return array an associative array containing all partials
-	 */
-	public function partials($template, $data = array(), $options = array()) {
-		$result = array();
-		$regex = sprintf(
-			'/(?:(?<=\\n)[ \\t]*)?%s(?:(?P<type>[%s])(?P<tag_name>.+?)|=(?P<delims>.*?)=)%s\\n?/s',
-			preg_quote('{{', '/'), '\>', preg_quote('}}', '/')
-		);
-		preg_match_all($regex, $template, $matches);
-		if (!empty($matches['tag_name'])) {
-			foreach ($matches['tag_name'] as $name) {
-				$result[$name] = $this->template($name, $data, $options);
-			}
-		}
-		return $result;
+	public function template($name, array $params = array()) {
+		$library = Libraries::get(isset($params['library']) ? $params['library'] : true);
+		$params['library'] = $library['path'];
+		return $this->_view()->render(array('element' => '../mustache/' . $name), array(), $params);
 	}
 
 	/**
