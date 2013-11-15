@@ -35,7 +35,7 @@ class Mustache extends \lithium\template\Helper {
 	 */
 	public function template($name, $data = array(), $params = array()) {
 		$data += $this->_context->data();
-		return $this->_view()->render(array('element' => '../mustache/' . $name), $data, $params);
+		return $this->_view()->render(array('element' => strtolower('../mustache/' . $name)), $data, $params);
 	}
 
 	/**
